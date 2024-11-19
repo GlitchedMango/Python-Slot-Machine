@@ -1,5 +1,4 @@
-from random import shuffle, sample
-from numpy import array, compress
+from random import sample
 from rich.panel import Panel
 from rich.table import Table
 from rich import padding, print, box
@@ -18,31 +17,39 @@ class SlotMachine:
         self.const_list = 10*["A"] + 5*["B"] + 1*["C"] 
 
         self.clear = lambda:os.system("cls")
+        
+        #self.ease_out_curve = [""]
+
     def randomize_slots(self):
         self.slot_lists = [{"name": "slot_list1", "value": sample(self.const_list, len(self.const_list))},
                            {"name": "slot_list2", "value": sample(self.const_list, len(self.const_list))},
                            {"name": "slot_list3", "value": sample(self.const_list, len(self.const_list))}]
 
-    def shift_slot_lists(self):
-        for slot_list in self.slot_lists:
-            console.print(slot_list)
-            slot_list["value"].append(slot_list["value"].pop(0))
-            console.print(slot_list["name"], slot_list["value"])
+    def shift_list(self, slot_list):
+        slot_list.insert(0, slot_list.pop(0))
 
+        self.displayed_row0 = [self.slot_lists[0]["value"][0], self.slot_lists[1]["value"][0], self.slot_lists[2]["value"][0]]
+        self.displayed_row1 = [self.slot_lists[0]["value"][1], self.slot_lists[1]["value"][1], self.slot_lists[2]["value"][1]]
+        self.displayed_row2 = [self.slot_lists[0]["value"][2], self.slot_lists[1]["value"][2], self.slot_lists[2]["value"][2]]
+
+        console.print(self.displayed_row0, "__", self.displayed_row1, "__", self.displayed_row2)
+
+        console.print("____")
     def check_lines(self):
         for slot_list in self.slot_lists:
             if all(x == slot_list["value"][0] for x in slot_list["value"]):
                 print(slot_list["name"])
 
     def start_game(self):
-        console.print(self.const_list)
         self.randomize_slots()
-        self.shift_slot_lists()
         self.check_lines()
+        self.shift_list(self.slot_lists[0]["value"])
+        self.shift_list(self.slot_lists[1]["value"])
+        self.shift_list(self.slot_lists[2]["value"])
         self.draw_screen()
 
     def draw_screen(self):
-       # slot_table = Table(style="yellow", show_header=False)
+       #slot_table = Table(style="yellow", show_header=False)
         #slot_table.add_row(str(self.lines[-1]["value"][0]), str(self.lines[0]["value"][1]), str(self.lines[0]["value"][2]))
         #slot_table.add_row(str(self.lines[0]["value"][0]), str(self.lines[1]["value"][1]), str(self.lines[1]["value"][2]))
         #slot_table.add_row(str(self.lines[1]["value"][0]), str(self.lines[2]["value"][1]), str(self.lines[2]["value"][2]))
