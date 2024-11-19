@@ -1,22 +1,25 @@
 from random import sample
 from rich.panel import Panel
 from rich.table import Table
-from rich import padding, print, box
+from rich import print, box
+from rich.live import Live
 from rich.console import Console
-import os
+from rich.align import Align
+from os import system
+from time import sleep
 # TODO:
 # Niet cooked UI
 # Spinning
 # 
 
-console = Console(style="") 
+console = Console(style="yellow") 
 
 class SlotMachine: 
     def __init__(self) -> None:
 
         self.const_list = 10*["A"] + 5*["B"] + 1*["C"] 
 
-        self.clear = lambda:os.system("cls")
+        self.clear = lambda:system("cls")
         
         #self.ease_out_curve = [""]
 
@@ -26,42 +29,43 @@ class SlotMachine:
                            {"name": "slot_list3", "value": sample(self.const_list, len(self.const_list))}]
 
     def shift_list(self, slot_list):
-        slot_list.insert(0, slot_list.pop(0))
-
+        slot_list.insert(0, slot_list.pop(len(slot_list) - 1))
         self.displayed_row0 = [self.slot_lists[0]["value"][0], self.slot_lists[1]["value"][0], self.slot_lists[2]["value"][0]]
         self.displayed_row1 = [self.slot_lists[0]["value"][1], self.slot_lists[1]["value"][1], self.slot_lists[2]["value"][1]]
         self.displayed_row2 = [self.slot_lists[0]["value"][2], self.slot_lists[1]["value"][2], self.slot_lists[2]["value"][2]]
 
-        console.print(self.displayed_row0, "__", self.displayed_row1, "__", self.displayed_row2)
-
-        console.print("____")
     def check_lines(self):
-        for slot_list in self.slot_lists:
-            if all(x == slot_list["value"][0] for x in slot_list["value"]):
-                print(slot_list["name"])
+        if all(self.displayed_row1):
+            console.print("&")
+        else:
+            console.print("a")
 
+    def update_screen(self):
+        slot_table = Table(style="yellow", show_header=False)
+
+        self.shift_list(self.slot_lists[0]["value"])
+        slot_table.add_column("")
+        slot_table.add_column("")
+        slot_table.add_column("")
+        slot_table.add_column("")
+        slot_table.add_row(str(self.displayed_row0[0]), str(self.displayed_row0[1]), str(self.displayed_row0[2]), style="dim yellow")
+        slot_table.add_row(str(self.displayed_row1[0]), str(self.displayed_row1[1]), str(self.displayed_row1[2]), style="yellow")
+        slot_table.add_row(str(self.displayed_row2[0]), str(self.displayed_row2[1]), str(self.displayed_row2[2]), style="dim yellow")
+
+        gui_grid = Table.grid(expand=True)
+        gui_grid.add_row(Panel(":snake: Python Slot Machine :snake:"), style="yellow")
+        gui_grid.add_row(Align.center(Panel(slot_table, style="yellow")))
+        
+        #console.print(gui_grid, style="yellow", justify="center")
+        return Align.center(gui_grid)
     def start_game(self):
         self.randomize_slots()
-        self.check_lines()
-        self.shift_list(self.slot_lists[0]["value"])
-        self.shift_list(self.slot_lists[1]["value"])
-        self.shift_list(self.slot_lists[2]["value"])
-        self.draw_screen()
-
-    def draw_screen(self):
-       #slot_table = Table(style="yellow", show_header=False)
-        #slot_table.add_row(str(self.lines[-1]["value"][0]), str(self.lines[0]["value"][1]), str(self.lines[0]["value"][2]))
-        #slot_table.add_row(str(self.lines[0]["value"][0]), str(self.lines[1]["value"][1]), str(self.lines[1]["value"][2]))
-        #slot_table.add_row(str(self.lines[1]["value"][0]), str(self.lines[2]["value"][1]), str(self.lines[2]["value"][2]))
-
-       # gui_grid = Table.grid(expand=True)
-       # gui_grid.add_row(Panel(":snake: Python Slot Machine :snake:"))
-       # gui_grid.add_row(Panel(slot_table, expand=True))
-
-        #console.print(gui_grid, style="yellow", justify="center")
-        return
+        with Live() as live:
+            while True:
+                sleep(1)
+                live.update(self.update_screen())
+                self.check_lines()
 
 if __name__ == "__main__":
     slotmachine = SlotMachine()
     slotmachine.start_game()
-    slotmachine.check_lines()
